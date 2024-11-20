@@ -37,7 +37,7 @@ completedSubject3: List[Subject] = [
 
 # Selecionar o curso e a área de interesse para as optativas
 course = Course.SISTEMAS_DE_INFORMACAO
-optative_area = Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING
+optative_area = Area.COMPUTER_NETWORKS_AND_SYSTEMS
 
 # Instância do algoritmo
 selection = BfsSubjectSelection(course=Course.SISTEMAS_DE_INFORMACAO, optative_area=Area.DATA_PERSISTENCE_AND_ANALYSIS)
