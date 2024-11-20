@@ -94,6 +94,3 @@ while True:
     if current_semester > max_semesters:
         print("\nLimite de semestres atingido. Interrompendo o planejamento.")
         break
-
-
-print(selection.optative_credits)

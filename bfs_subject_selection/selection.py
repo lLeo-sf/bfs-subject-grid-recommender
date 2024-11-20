@@ -21,10 +21,9 @@ class BfsSubjectSelection:
         self.subjects_graph = {subject.cod: subject for subject in course_subjects}
 
         # Adicionar optativas de outros cursos, se permitido
-        if self.optative_area:
-            for subject in other_course_subjects:
-                if subject.type == SubjectType.OPTIONAL and subject.cod not in self.subjects_graph:
-                    self.subjects_graph[subject.cod] = subject
+        for subject in other_course_subjects:
+            if subject.type == SubjectType.OPTIONAL and subject.cod not in self.subjects_graph:
+                self.subjects_graph[subject.cod] = subject
 
     def load_completed_subjects(self, subjects: List[Subject]):
         self.completed_subjects = {
@@ -103,7 +102,18 @@ class BfsSubjectSelection:
                 if subject.type == SubjectType.OPTIONAL:
                     self.optative_credits += subject.credit
 
+        # Forçar inclusão de optativas para atingir o mínimo de créditos
+        if self.optative_credits < self.optative_credit_goal:
+            for subject in self.subjects_graph.values():
+                if subject.type == SubjectType.OPTIONAL and subject.cod not in self.completed_subjects:
+                    if current_credits + subject.credit <= self.max_credits:
+                        available_subjects.append(subject)
+                        current_credits += subject.credit
+                        self.completed_subjects.add(subject.cod)
+                        self.optative_credits += subject.credit
+
         return available_subjects
+
     def update_completed_subjects(self, subjects: List[Subject]):
         """Atualiza a lista de disciplinas concluídas após cada semestre."""
         for subject in subjects:
