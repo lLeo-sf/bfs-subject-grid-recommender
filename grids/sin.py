@@ -91,8 +91,8 @@ subjects: List[Subject] = [
     Subject(StudentStatus.PENDING, 'ADM58H', 'Psicologia Organizacional e do Trabalho', Area.HUMAN_ASPECTS_IN_COMPUTING, 6, SubjectType.OPTIONAL, 32, []),
     Subject(StudentStatus.PENDING, 'ADM51H', 'Ciências, Tecnologias e Organizações', Area.HUMAN_ASPECTS_IN_COMPUTING, 7, SubjectType.OPTIONAL, 48, []),
 
-    Subject(StudentStatus.PENDING, 'TCC1', 'TCC1', Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 8, SubjectType.REQUIRED, 144, []),
-    Subject(StudentStatus.PENDING, 'TCC2', 'TCC2', Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 9, SubjectType.REQUIRED, 216, ["TCC1"])
+    #Subject(StudentStatus.PENDING, 'TCC1', 'TCC1', Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 8, SubjectType.REQUIRED, 144, []),
+    #Subject(StudentStatus.PENDING, 'TCC2', 'TCC2', Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 9, SubjectType.REQUIRED, 216, ["TCC1"])
 ]
 
 

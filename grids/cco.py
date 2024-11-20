@@ -37,10 +37,10 @@ subjects: List[Subject] = [
     Subject(StudentStatus.PENDING, "CMAC05", "Cálculo Numérico para Computação",area=Area.MATHEMATICS_OF_COMPUTATION,default_semester=4,type=SubjectType.REQUIRED,credit=64,prerequisites=["MAT00A"]),
     Subject(StudentStatus.PENDING, "XAHC01", "Computação e Sociedade",area=Area.HUMAN_ASPECTS_IN_COMPUTING,default_semester=7,type=SubjectType.REQUIRED,credit=64,prerequisites=[]),
     Subject(StudentStatus.PENDING, "XAHC02", "Interação Humano-Computador",area=Area.HUMAN_ASPECTS_IN_COMPUTING,default_semester=6,type=SubjectType.REQUIRED,credit=64,prerequisites=["XDES03", "XDES04"]),
-    Subject(StudentStatus.PENDING, "XAHC03", "Metodologia Científica",area=Area.HUMAN_ASPECTS_IN_COMPUTING,default_semester=7,type=SubjectType.REQUIRED,credit=64,prerequisites=["TCC1"]),
+    Subject(StudentStatus.PENDING, "XAHC03", "Metodologia Científica",area=Area.HUMAN_ASPECTS_IN_COMPUTING,default_semester=7,type=SubjectType.REQUIRED,credit=64,prerequisites=[]),
     Subject(StudentStatus.PENDING, "CAHC04", "Projeto Integrado",area=Area.HUMAN_ASPECTS_IN_COMPUTING,default_semester=1,type=SubjectType.REQUIRED,credit=32,prerequisites=[]),
 
-    #Subject(StudentStatus.PENDING, "SDES05", "Engenharia de Software II",area=Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING,default_semester=1,type=SubjectType.OPTIONAL,credit=64,prerequisites=["XDES04"]),
+    Subject(StudentStatus.PENDING, "SDES05", "Engenharia de Software II",area=Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING,default_semester=1,type=SubjectType.OPTIONAL,credit=64,prerequisites=["XDES04"]),
     Subject(StudentStatus.PENDING, "SDES06", "Gerência de projetos de software",area=Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING,default_semester=1,type=SubjectType.OPTIONAL,credit=64,prerequisites=["XDES04"]),
     Subject(StudentStatus.PENDING, "SDES07", "Desenvolvimento de sistemas web", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 1, SubjectType.OPTIONAL, 64, ["XDES04", "XPAD01", "XDES03"]),
     Subject(StudentStatus.PENDING, "XDES08", "Arquitetura de Software",area=Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING,default_semester=1,type=SubjectType.OPTIONAL,credit=64,prerequisites=["XDES04"]),
@@ -90,6 +90,6 @@ subjects: List[Subject] = [
     Subject(StudentStatus.PENDING, "ADM52H", "Comportamento Organizacional II", Area.MANAGEMENT_AND_ADMINISTRATION, 1, SubjectType.OPTIONAL, 32, []),
     Subject(StudentStatus.PENDING, "ADM54H", "Gestão de Carreira", Area.MANAGEMENT_AND_ADMINISTRATION, 1, SubjectType.OPTIONAL, 32, []),
     Subject(StudentStatus.PENDING, "ADM58H", "Psicologia Organizacional e do Trabalho", Area.MANAGEMENT_AND_ADMINISTRATION, 1, SubjectType.OPTIONAL, 32, []),
-    Subject(StudentStatus.PENDING, "TCC1", "TCC1", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 7, SubjectType.REQUIRED, 140, []),
-    Subject(StudentStatus.PENDING, "TCC2", "TCC2", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 8, SubjectType.REQUIRED, 210, ["TCC1"]),
+    #Subject(StudentStatus.PENDING, "TCC1", "TCC1", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 7, SubjectType.REQUIRED, 140, []),
+    #Subject(StudentStatus.PENDING, "TCC2", "TCC2", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 8, SubjectType.REQUIRED, 210, ["TCC1"]),
 ]

@@ -39,14 +39,11 @@ completedSubject3: List[Subject] = [
 course = Course.SISTEMAS_DE_INFORMACAO
 optative_area = Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING
 
-# Carregar todas as disciplinas disponíveis (SIN + CCO)
-all_subjects = sin_subjects + cco_subjects
-
 # Instância do algoritmo
 selection = BfsSubjectSelection(course=Course.SISTEMAS_DE_INFORMACAO, optative_area=Area.DATA_PERSISTENCE_AND_ANALYSIS)
 
 # Construir grafo com todas as disciplinas
-selection.build_graph(all_subjects)
+selection.build_graph(course_subjects=sin_subjects, other_course_subjects=cco_subjects)
 
 # Disciplinas já concluídas pelo aluno (início sem nenhuma concluída)
 completed_subjects = []
@@ -68,12 +65,7 @@ while True:
     # Exibir disciplinas sugeridas
     if available_subjects:
         for subject in available_subjects:
-            equivalence_note = (
-                f" (equivalente de {selection.equivalents[subject.cod]})"
-                if subject.cod.startswith("X") and subject.cod in selection.equivalents
-                else ""
-            )
-            print(f"- {subject.cod}: {subject.name} ({subject.credit} créditos){equivalence_note}")
+            print(f"- {subject.cod}: {subject.name} ({subject.credit} créditos)")
     else:
         print("Nenhuma disciplina disponível para este semestre.")
 
@@ -82,12 +74,17 @@ while True:
 
     # Verificar se todas as disciplinas obrigatórias e optativas foram concluídas
     mandatory_completed = all(
-        subject.cod in selection.completed_subjects for subject in all_subjects if subject.type == SubjectType.REQUIRED
+        subject.cod in selection.completed_subjects for subject in sin_subjects if subject.type == SubjectType.REQUIRED
     )
     optative_completed = selection.has_completed_optative_credits()
 
-    if mandatory_completed and optative_completed:
-        print("\nTodas as disciplinas obrigatórias e optativas foram concluídas.")
+    if mandatory_completed:
+        print("\nTodas as disciplinas obrigatórias foram concluídas.")
+
+    if optative_completed:
+        print("\nTodas as disciplinas optativas foram concluídas.")
+
+    if mandatory_completed and optative_completed: 
         break
 
     # Incrementar semestre
@@ -99,25 +96,4 @@ while True:
         break
 
 
-# Confirmação final
-mandatory_subjects = [
-    subject for subject in all_subjects
-    if subject.type == SubjectType.REQUIRED and (
-        (course == Course.SISTEMAS_DE_INFORMACAO and not subject.cod.startswith("C")) or
-        (course == Course.CIENCIA_DA_COMPUTACAO and not subject.cod.startswith("S"))
-    )
-]
-
-# Verificar disciplinas obrigatórias não cursadas
-not_completed_mandatory = [
-    subject for subject in mandatory_subjects
-    if subject.cod not in selection.completed_subjects
-]
-
-# Exibir disciplinas obrigatórias pendentes
-if not_completed_mandatory:
-    print("\nDisciplinas obrigatórias pendentes:")
-    for subject in not_completed_mandatory:
-        print(f"- {subject.cod}: {subject.name} (Semestre Padrão: {subject.default_semester})")
-else:
-    print("\nTodas as disciplinas obrigatórias foram concluídas.")
+print(selection.optative_credits)

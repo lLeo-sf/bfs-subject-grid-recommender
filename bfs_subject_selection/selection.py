@@ -9,24 +9,22 @@ class BfsSubjectSelection:
         self.max_credits = max_credits
         self.completed_subjects: Set[str] = set()
         self.subjects_graph: Dict[str, Subject] = {}
-        self.equivalents: Dict[str, str] = {}
         self.optative_credits = 0
         self.optative_credit_goal = 608 if course == Course.SISTEMAS_DE_INFORMACAO else 672
         self.optative_area = optative_area
 
-    def build_graph(self, subjects: List[Subject]):
-        """Cria o grafo de disciplinas e mapeia equivalências."""
-        self.subjects_graph = {subject.cod: subject for subject in subjects}
+    def build_graph(self, course_subjects: List[Subject], other_course_subjects: List[Subject]):
+        """
+        Constrói o grafo de disciplinas considerando apenas disciplinas do curso selecionado.
+        """
+        # Grafo principal com disciplinas do curso selecionado
+        self.subjects_graph = {subject.cod: subject for subject in course_subjects}
 
-        for subject in subjects:
-            # Adicionar equivalências para disciplinas com prefixo "X"
-            if subject.cod.startswith("X"):
-                self.equivalents[subject.cod] = subject.cod
-
-            # Verificar existência de pré-requisitos no grafo ou nas equivalências
-            for prereq in subject.prerequisites:
-                if prereq not in self.subjects_graph and prereq not in self.equivalents:
-                    raise ValueError(f"Pré-requisito desconhecido: {prereq} para a disciplina {subject.cod} ({subject.name})")
+        # Adicionar optativas de outros cursos, se permitido
+        if self.optative_area:
+            for subject in other_course_subjects:
+                if subject.type == SubjectType.OPTIONAL and subject.cod not in self.subjects_graph:
+                    self.subjects_graph[subject.cod] = subject
 
     def load_completed_subjects(self, subjects: List[Subject]):
         self.completed_subjects = {
@@ -34,17 +32,7 @@ class BfsSubjectSelection:
         }
 
     def is_prerequisite_completed(self, prereq: str) -> bool:
-        """
-        Verifica se um pré-requisito foi concluído, considerando a troca da primeira letra 
-        para a grade do curso atual (S ou C).
-        """
-        # Curso atual define o prefixo
-        course_prefix = "S" if self.course == Course.SISTEMAS_DE_INFORMACAO else "C"
-        equivalent_prereq = course_prefix + prereq[1:] 
-
-        # Verifica se o pré-requisito ou seu equivalente foi concluído
-        return prereq in self.completed_subjects or equivalent_prereq in self.completed_subjects
-
+        return prereq in self.completed_subjects
 
     def calculate_weight(self, subject: Subject, current_semester: int) -> int:
         """
@@ -81,13 +69,7 @@ class BfsSubjectSelection:
 
         # Inicializa BFS para disciplinas disponíveis
         for subject in self.subjects_graph.values():
-            # Ignorar disciplinas fora do escopo do curso atual
-            if self.course == Course.SISTEMAS_DE_INFORMACAO and subject.cod.startswith("C"):
-                continue
-            if self.course == Course.CIENCIA_DA_COMPUTACAO and subject.cod.startswith("S"):
-                continue
-
-            # Verificar se todos os pré-requisitos (ou equivalentes concluídos) estão cumpridos
+            # Verificar se todos os pré-requisitos estão cumpridos
             if subject.cod not in self.completed_subjects and all(
                 self.is_prerequisite_completed(prereq) for prereq in subject.prerequisites
             ):
@@ -122,8 +104,8 @@ class BfsSubjectSelection:
                     self.optative_credits += subject.credit
 
         return available_subjects
-
     def update_completed_subjects(self, subjects: List[Subject]):
+        """Atualiza a lista de disciplinas concluídas após cada semestre."""
         for subject in subjects:
             if subject.cod not in self.completed_subjects:
                 self.completed_subjects.add(subject.cod)
@@ -131,6 +113,7 @@ class BfsSubjectSelection:
                     self.optative_credits += subject.credit
 
     def get_fixed_first_semester_subjects(self) -> List[str]:
+        """Retorna as disciplinas fixas do primeiro semestre."""
         if self.course == Course.SISTEMAS_DE_INFORMACAO:
             return ["XDES01", "SAHC04", "SAHC05", "MAT00A", "IEPG01", "IEPG22"]
         elif self.course == Course.CIENCIA_DA_COMPUTACAO:
@@ -138,4 +121,5 @@ class BfsSubjectSelection:
         return []
 
     def has_completed_optative_credits(self) -> bool:
+        """Verifica se o aluno completou o mínimo de créditos optativos necessários."""
         return self.optative_credits >= self.optative_credit_goal
