@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import Dict, List
 
 class Area(Enum):
     SOFTWARE_DEVELOPMENT_AND_ENGINEERING = "Software Development and Engineering"

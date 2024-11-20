@@ -1,6 +1,7 @@
 from typing import List
 
 from matplotlib import pyplot as plt
+import pandas as pd
 from data_structures.course import Course
 from data_structures.subject import Area, StudentStatus, Subject, SubjectType
 from bfs_subject_selection.selection import BfsSubjectSelection
@@ -21,8 +22,16 @@ completedSubject2: List[Subject] = [
     Subject(StudentStatus.COMPLETED, "XDES02", "Programação Orientada a Objetos", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 2, type=SubjectType.REQUIRED, credit=64, prerequisites=["XDES01"]),
     Subject(StudentStatus.COMPLETED, "XDES04", "Engenharia de Software I", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 2, type=SubjectType.REQUIRED, credit=64, prerequisites=[]),
     Subject(StudentStatus.COMPLETED, "STCO01", "Algoritmos e Programação I", Area.COMPUTATION_THEORY, 2, type=SubjectType.REQUIRED, credit=64, prerequisites=["XDES01"]),
-    Subject(StudentStatus.PENDING, "XMAC01", "Matemática Discreta",area=Area.MATHEMATICS_OF_COMPUTATION,default_semester=1,type=SubjectType.REQUIRED,credit=64,prerequisites=[]),
-    Subject(StudentStatus.PENDING, "IEPG04", "Mapeamento de Processos", Area.MANAGEMENT_AND_ADMINISTRATION, 2, type=SubjectType.REQUIRED, credit=32, prerequisites=[]),
+    Subject(StudentStatus.COMPLETED, "XMAC01", "Matemática Discreta",area=Area.MATHEMATICS_OF_COMPUTATION,default_semester=1,type=SubjectType.REQUIRED,credit=64,prerequisites=[]),
+    Subject(StudentStatus.COMPLETED, "IEPG04", "Mapeamento de Processos", Area.MANAGEMENT_AND_ADMINISTRATION, 2, type=SubjectType.REQUIRED, credit=32, prerequisites=[]),
+]
+
+completedSubject3: List[Subject] = [
+    Subject(StudentStatus.COMPLETED, "XDES03", "Programação Web", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 3, type=SubjectType.REQUIRED, credit=64, prerequisites=["XDES02"]),
+    Subject(StudentStatus.COMPLETED , "STCO02", "Algoritmos e Programação II", Area.COMPUTATION_THEORY, 3, type=SubjectType.REQUIRED, credit=64, prerequisites=["STCO01"]),
+    Subject(StudentStatus.COMPLETED , "SDES05", "Engenharia de Software II", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 3, type=SubjectType.REQUIRED, credit=64, prerequisites=["XDES04"]),
+    Subject(StudentStatus.PENDING, "ECN001", "Economia", Area.MANAGEMENT_AND_ADMINISTRATION, 3, type=SubjectType.REQUIRED, credit=48, prerequisites=[]),
+    Subject(StudentStatus.PENDING, "SRSC03", "Organização e Arquitetura de Computadores", Area.COMPUTER_NETWORKS_AND_SYSTEMS, 3, type=SubjectType.REQUIRED, credit=64, prerequisites=[]),
 ]
 
 
@@ -33,50 +42,82 @@ optative_area = Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING
 # Carregar todas as disciplinas disponíveis (SIN + CCO)
 all_subjects = sin_subjects + cco_subjects
 
-# Criar uma instância de SubjectSelection para o curso selecionado
-selection = BfsSubjectSelection(course, optative_area=optative_area)
+# Instância do algoritmo
+selection = BfsSubjectSelection(course=Course.SISTEMAS_DE_INFORMACAO, optative_area=Area.DATA_PERSISTENCE_AND_ANALYSIS)
+
+# Construir grafo com todas as disciplinas
 selection.build_graph(all_subjects)
 
-# Disciplinas já concluídas
+# Disciplinas já concluídas pelo aluno (início sem nenhuma concluída)
 completed_subjects = []
 
+# Carregar disciplinas concluídas
 selection.load_completed_subjects(completed_subjects)
 
-# Recomendação de disciplinas por semestre
-semester_number = 1
-recommended_subjects_by_semester = {}
+# Variáveis de controle
+current_semester = 1
+max_semesters = 12  # Limite de semestres para evitar loops
 
+# Loop para sugerir disciplinas até concluir todas as obrigatórias e optativas
 while True:
-    # Encontrar disciplinas disponíveis para o semestre atual
-    available_subjects = selection.find_available_subjects(semester_number)
+    print(f"\n--- Sugestão para o Semestre {current_semester} ---")
 
-    # Se não houver disciplinas disponíveis, encerrar o loop
-    if not available_subjects:
-        break
+    # Obter disciplinas disponíveis para o semestre atual
+    available_subjects = selection.find_available_subjects(semester_number=current_semester)
 
-    # Adicionar as disciplinas recomendadas ao dicionário
-    recommended_subjects_by_semester[semester_number] = available_subjects
+    # Exibir disciplinas sugeridas
+    if available_subjects:
+        for subject in available_subjects:
+            equivalence_note = (
+                f" (equivalente de {selection.equivalents[subject.cod]})"
+                if subject.cod.startswith("X") and subject.cod in selection.equivalents
+                else ""
+            )
+            print(f"- {subject.cod}: {subject.name} ({subject.credit} créditos){equivalence_note}")
+    else:
+        print("Nenhuma disciplina disponível para este semestre.")
 
     # Atualizar disciplinas concluídas
-    for subject in available_subjects:
-        subject.studentStatus = StudentStatus.COMPLETED
-        completed_subjects.append(subject)
-    
     selection.update_completed_subjects(available_subjects)
 
-    # Verificar se todas as obrigatórias e optativas foram concluídas
-    if all(
-        subj.cod in selection.completed_subjects for subj in all_subjects if subj.type == SubjectType.REQUIRED
-    ) and selection.has_completed_optative_credits():
+    # Verificar se todas as disciplinas obrigatórias e optativas foram concluídas
+    mandatory_completed = all(
+        subject.cod in selection.completed_subjects for subject in all_subjects if subject.type == SubjectType.REQUIRED
+    )
+    optative_completed = selection.has_completed_optative_credits()
+
+    if mandatory_completed and optative_completed:
+        print("\nTodas as disciplinas obrigatórias e optativas foram concluídas.")
         break
 
-    # Passar para o próximo semestre
-    semester_number += 1
-    selection.build_graph(all_subjects)
+    # Incrementar semestre
+    current_semester += 1
 
-# Imprimir a recomendação de disciplinas por semestre
-print("\nRecomendações de Disciplinas por Semestre:")
-for semester, subjects in recommended_subjects_by_semester.items():
-    print(f"\nSemestre {semester}:")
-    for subject in subjects:
-        print(f"  - {subject.cod}: {subject.name} ({subject.credit} créditos)")
+    # Verificar se o limite de semestres foi atingido
+    if current_semester > max_semesters:
+        print("\nLimite de semestres atingido. Interrompendo o planejamento.")
+        break
+
+
+# Confirmação final
+mandatory_subjects = [
+    subject for subject in all_subjects
+    if subject.type == SubjectType.REQUIRED and (
+        (course == Course.SISTEMAS_DE_INFORMACAO and not subject.cod.startswith("C")) or
+        (course == Course.CIENCIA_DA_COMPUTACAO and not subject.cod.startswith("S"))
+    )
+]
+
+# Verificar disciplinas obrigatórias não cursadas
+not_completed_mandatory = [
+    subject for subject in mandatory_subjects
+    if subject.cod not in selection.completed_subjects
+]
+
+# Exibir disciplinas obrigatórias pendentes
+if not_completed_mandatory:
+    print("\nDisciplinas obrigatórias pendentes:")
+    for subject in not_completed_mandatory:
+        print(f"- {subject.cod}: {subject.name} (Semestre Padrão: {subject.default_semester})")
+else:
+    print("\nTodas as disciplinas obrigatórias foram concluídas.")

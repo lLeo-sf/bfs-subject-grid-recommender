@@ -9,7 +9,7 @@ subjects: List[Subject] = [
     Subject(StudentStatus.PENDING, "XDES04", "Engenharia de Software I", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 2, type=SubjectType.REQUIRED, credit=64, prerequisites=[]),
     Subject(StudentStatus.PENDING, "SDES05", "Engenharia de Software II", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 3, type=SubjectType.REQUIRED, credit=64, prerequisites=["XDES04"]),
     Subject(StudentStatus.PENDING, "SDES06", "Gerência de Projetos de Software", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 6, type=SubjectType.REQUIRED, credit=64, prerequisites=["SDES05"]),
-    Subject(StudentStatus.PENDING, "SDESb07", "Desenvolvimento de Sistemas Web", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 7, type=SubjectType.REQUIRED, credit=64, prerequisites=["XDES03", "XDES04", "XPAD01"]),
+    Subject(StudentStatus.PENDING, "SDES07", "Desenvolvimento de Sistemas Web", Area.SOFTWARE_DEVELOPMENT_AND_ENGINEERING, 7, type=SubjectType.REQUIRED, credit=64, prerequisites=["XDES03", "XDES04", "XPAD01"]),
     
     Subject(StudentStatus.PENDING, "XPAD01", "Banco de Dados I", Area.DATA_PERSISTENCE_AND_ANALYSIS, 4, type=SubjectType.REQUIRED, credit=64, prerequisites=["STCO02"]),
     Subject(StudentStatus.PENDING, "SPAD02", "Banco de Dados II", Area.DATA_PERSISTENCE_AND_ANALYSIS, 5, type=SubjectType.REQUIRED, credit=64, prerequisites=["XPAD01"]),
