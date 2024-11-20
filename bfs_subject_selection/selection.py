@@ -44,17 +44,9 @@ class BfsSubjectSelection:
 
     def is_prerequisite_completed(self, prereq: str) -> bool:
         """
-        Verifica se um pré-requisito foi concluído, considerando equivalências
-        baseadas no prefixo 'X' para disciplinas equivalentes.
+        Verifica se um pré-requisito foi concluído.
         """
-        if prereq in self.completed_subjects:
-            return True
-
-        # Verifica equivalência trocando o prefixo 'X' pelo outro curso
-        course_prefix = "S" if self.course == Course.SISTEMAS_DE_INFORMACAO else "C"
-        equivalent_prereq = course_prefix + prereq[1:]
-
-        return equivalent_prereq in self.completed_subjects
+        return prereq in self.completed_subjects
 
     def calculate_weight(self, subject: Subject, current_semester: int) -> int:
         """
@@ -67,9 +59,16 @@ class BfsSubjectSelection:
 
         return prereq_weight + semester_weight + optative_penalty
 
+    def is_offered_in_semester(self, subject: Subject, current_semester: int) -> bool:
+        """
+        Verifica se a disciplina é oferecida no semestre ímpar/par atual.
+        """
+        return subject.default_semester % 2 == current_semester % 2
+
     def find_best_equivalence(self, subject: Subject, current_semester: int) -> Subject:
         """
-        Retorna a melhor equivalência entre a disciplina atual e sua equivalente no outro curso.
+        Retorna a melhor equivalência entre a disciplina atual e sua equivalente no outro curso,
+        respeitando a regra de semestre ímpar/par.
         """
         if not subject.cod.startswith("X"):
             return subject
@@ -80,7 +79,7 @@ class BfsSubjectSelection:
 
         # Verifica se a equivalente existe no grafo do outro curso
         equivalent_subject = self.other_course_graph.get(equivalent_cod)
-        if not equivalent_subject:
+        if not equivalent_subject or not self.is_offered_in_semester(equivalent_subject, current_semester):
             return subject
 
         # Compara pesos para determinar a melhor opção
@@ -116,8 +115,10 @@ class BfsSubjectSelection:
         # Inicializa BFS para disciplinas disponíveis
         for subject in self.subjects_graph.values():
             # Verificar se todos os pré-requisitos estão cumpridos
-            if subject.cod not in self.completed_subjects and all(
-                self.is_prerequisite_completed(prereq) for prereq in subject.prerequisites
+            if (
+                subject.cod not in self.completed_subjects
+                and all(self.is_prerequisite_completed(prereq) for prereq in subject.prerequisites)
+                and self.is_offered_in_semester(subject, semester_number)
             ):
                 # Considerar equivalência para selecionar a melhor disciplina
                 best_subject = self.find_best_equivalence(subject, semester_number)
@@ -164,12 +165,8 @@ class BfsSubjectSelection:
 
         return available_subjects
 
-
-
     def update_completed_subjects(self, subjects: List[Subject]):
-        """
-        Atualiza a lista de disciplinas concluídas após cada semestre.
-        """
+        """Atualiza a lista de disciplinas concluídas após cada semestre."""
         for subject in subjects:
             if subject.cod not in self.completed_subjects:
                 self.completed_subjects.add(subject.cod)
@@ -177,9 +174,7 @@ class BfsSubjectSelection:
                     self.optative_credits += subject.credit
 
     def get_fixed_first_semester_subjects(self) -> List[str]:
-        """
-        Retorna as disciplinas fixas do primeiro semestre.
-        """
+        """Retorna as disciplinas fixas do primeiro semestre."""
         if self.course == Course.SISTEMAS_DE_INFORMACAO:
             return ["XDES01", "SAHC04", "SAHC05", "MAT00A", "IEPG01", "IEPG22"]
         elif self.course == Course.CIENCIA_DA_COMPUTACAO:
@@ -187,7 +182,5 @@ class BfsSubjectSelection:
         return []
 
     def has_completed_optative_credits(self) -> bool:
-        """
-        Verifica se o aluno completou o mínimo de créditos optativos necessários.
-        """
+        """Verifica se o aluno completou o mínimo de créditos optativos necessários."""
         return self.optative_credits >= self.optative_credit_goal
