@@ -178,7 +178,7 @@ class BfsSubjectSelection:
         if self.course == Course.SISTEMAS_DE_INFORMACAO:
             return ["XDES01", "SAHC04", "SAHC05", "MAT00A", "IEPG01", "IEPG22"]
         elif self.course == Course.CIENCIA_DA_COMPUTACAO:
-            return ["XDES01", "CRSC03", "MAT00A", "XMACO01", "CAHC04"]
+            return ["XDES01", "CRSC03", "MAT00A", "XMAC01", "CAHC04"]
         return []
 
     def has_completed_optative_credits(self) -> bool:
